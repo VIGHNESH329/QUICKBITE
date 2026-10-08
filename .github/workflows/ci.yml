@@ -1,0 +1,77 @@
+name: QuickBite CI/CD & Security Verification Pipeline
+
+on:
+  push:
+    branches: [ main, develop, development ]
+  pull_request:
+    branches: [ main, develop, development ]
+
+jobs:
+  security-and-test:
+    name: Build, SAST, Security Tests & Audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 1. Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 2. Setup Python Runtime
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: 3. Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8 bandit pip-audit pytest httpx
+          pip install -r requirements.txt
+
+      - name: 4. Static Code Quality & Linting
+        run: |
+          # Stop build if there are Python syntax errors or undefined names
+          flake8 backend/app --count --select=E9,F63,F7,F82 --show-source --statistics
+          # Warning check for complexity
+          flake8 backend/app --count --exit-zero --max-complexity=15 --max-line-length=127 --statistics
+
+      - name: 5. Static Application Security Testing (SAST)
+        run: |
+          echo "Executing Bandit Security Linter against backend application..."
+          bandit -r backend/app -ll -ii
+
+      - name: 6. Software Composition Analysis (SCA) Dependency Audit
+        run: |
+          echo "Scanning Python dependencies for known CVE vulnerabilities..."
+          pip-audit --desc
+
+      - name: 7. Execute Automated Security Unit Tests
+        run: |
+          echo "Running Cryptography, Token, and Authoritative Pricing Tests..."
+          export PYTHONPATH=$PYTHONPATH:$(pwd)/backend
+          pytest tests/test_unit.py -v
+
+      - name: 8. Execute Authorization, Tenant & BOLA (IDOR) Security Tests
+        run: |
+          echo "Running BOLA and Multi-Tenant Isolation Tests..."
+          export PYTHONPATH=$PYTHONPATH:$(pwd)/backend
+          pytest tests/test_authz.py -v
+
+      - name: 9. Execute System Integration & Authoritative Pricing Tests
+        run: |
+          echo "Running End-to-End System & Financial Price Integrity Tests..."
+          export PYTHONPATH=$PYTHONPATH:$(pwd)/backend
+          pytest tests/test_integration.py -v
+
+      - name: 10. Execute Input Boundary & Fuzzing Resilience Tests
+        run: |
+          echo "Running Fuzzing and Input Boundary Tests..."
+          export PYTHONPATH=$PYTHONPATH:$(pwd)/backend
+          pytest tests/test_fuzz.py -v
+
+      - name: 11. Verify Container Build & Non-Root Configuration
+        run: |
+          echo "Building QuickBite v2.0.0 Production Docker Image..."
+          docker build -t quickbite:2.0.0 .
+          echo "Verifying Non-Root User..."
+          docker run --rm quickbite:2.0.0 id | grep "uid=10001(appuser)"
+

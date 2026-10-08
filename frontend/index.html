@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QuickBite — Secure Online Food Ordering Platform</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="brand" onclick="app.showTab('browse')">
+      🍕 <span>QuickBite</span>
+      <span class="brand-badge">v2.0.0 Secure SSE</span>
+    </div>
+
+    <!-- Active Navigation Links (Role Dynamic) -->
+    <nav class="nav-links" id="main-nav">
+      <button class="nav-btn active" id="btn-nav-browse" onclick="app.showTab('browse')">Browse Restaurants</button>
+      <button class="nav-btn" id="btn-nav-orders" onclick="app.showTab('orders')">My Orders</button>
+      <button class="nav-btn" id="btn-nav-kitchen" onclick="app.showTab('kitchen')" style="display:none;">Kitchen Dashboard</button>
+      <button class="nav-btn" id="btn-nav-menu" onclick="app.showTab('menu-mgmt')" style="display:none;">Menu Management</button>
+      <button class="nav-btn" id="btn-nav-audit" onclick="app.showTab('audit')" style="display:none;">Audit Ledger</button>
+    </nav>
+
+    <!-- Navigation Right Controls -->
+    <div class="navbar-right">
+      <!-- Security Posture Modal Trigger -->
+      <button class="btn-sec-posture" onclick="app.openSecurityModal()">
+        🛡️ Security Posture
+      </button>
+
+      <!-- Cart Button (Customers only) -->
+      <button class="cart-btn" id="header-cart-btn" onclick="app.showTab('cart')">
+        🛒 Cart <span class="cart-badge" id="cart-counter">0</span>
+      </button>
+
+      <!-- User Context / Logout -->
+      <div class="user-badge-container" id="user-profile-badge">
+        <span id="current-user-name">Loading...</span>
+        <span class="user-role-pill role-customer" id="current-user-role-pill">Customer</span>
+      </div>
+
+      <button class="btn-secondary" id="auth-action-btn" onclick="app.handleAuthAction()">
+        Sign Out
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Application Body -->
+  <main class="container">
+    
+    <!-- Security Enforcement Trust Banner -->
+    <div class="security-banner">
+      <div>
+        <div class="security-banner-title">
+          <span>🛡️ Active Security Controls:</span>
+        </div>
+        <div class="security-banner-tags" style="margin-top: 4px;">
+          <span class="sec-pill">Authoritative Server Pricing</span>
+          <span class="sec-pill">BOLA / IDOR Protection</span>
+          <span class="sec-pill">Salted Bcrypt (Cost 12)</span>
+          <span class="sec-pill">PCI Tokenization</span>
+          <span class="sec-pill">Non-Root UID 10001</span>
+        </div>
+      </div>
+      <div>
+        <button class="btn-secondary" style="font-size: 0.78rem;" onclick="app.openSecurityModal()">
+          Inspect Security Guarantees →
+        </button>
+      </div>
+    </div>
+
+    <!-- TAB 1: BROWSE RESTAURANTS & MENUS -->
+    <section id="tab-browse" class="tab-content active">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Select a Restaurant</h2>
+          <p class="section-subtitle">Choose an authentic verified kitchen to view curated specialties</p>
+        </div>
+      </div>
+
+      <!-- Restaurant Cards Grid -->
+      <div class="grid-restaurants" id="restaurants-container">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <!-- Menu Section Header & Category Filter Bar -->
+      <div class="section-header" style="margin-top: 2rem;">
+        <div>
+          <h2 class="section-title" id="selected-restaurant-title">Menu Offerings</h2>
+          <p class="section-subtitle" id="selected-restaurant-subtitle">Authentic dishes prepared to order</p>
+        </div>
+        <span class="badge badge-accepted" id="menu-item-count">Loading items...</span>
+      </div>
+
+      <!-- Category Filter Bar -->
+      <div class="filter-bar" id="category-filters">
+        <button class="filter-chip active" onclick="app.filterCategory('all')">All Dishes</button>
+        <button class="filter-chip" onclick="app.filterCategory('Pizza')">Pizza</button>
+        <button class="filter-chip" onclick="app.filterCategory('Pasta')">Pasta</button>
+        <button class="filter-chip" onclick="app.filterCategory('Curry')">Curry</button>
+        <button class="filter-chip" onclick="app.filterCategory('Breads')">Breads</button>
+        <button class="filter-chip" onclick="app.filterCategory('Dessert')">Dessert</button>
+        <button class="filter-chip" onclick="app.filterCategory('Beverages')">Beverages</button>
+      </div>
+
+      <!-- Food Items Grid -->
+      <div class="menu-grid" id="food-items-container">
+        <!-- Rendered dynamically -->
+      </div>
+    </section>
+
+    <!-- TAB 2: CART & CHECKOUT -->
+    <section id="tab-cart" class="tab-content">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Your Shopping Cart</h2>
+          <p class="section-subtitle">Review items and proceed through tokenized secure checkout</p>
+        </div>
+        <button class="btn-secondary" onclick="app.clearCart()">Clear Cart</button>
+      </div>
+
+      <div class="cart-layout">
+        <!-- Cart Items Column -->
+        <div class="cart-box">
+          <h3 style="font-size: 1.1rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
+            Order Items Summary
+          </h3>
+          <div id="cart-items-list">
+            <!-- Rendered dynamically -->
+          </div>
+          <div id="cart-empty-message" style="display:none; padding: 3rem 1rem; text-align: center; color: var(--text-muted);">
+            🍽️ Your cart is currently empty. Explore our restaurant menus to select delicious dishes!
+          </div>
+        </div>
+
+        <!-- Checkout Form Column -->
+        <div class="cart-box">
+          <h3 style="font-size: 1.1rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
+            Delivery & Payment
+          </h3>
+
+          <div class="form-group">
+            <label class="form-label" for="checkout-address">Delivery Destination Address</label>
+            <input type="text" class="form-input" id="checkout-address" value="452 Elm Street, Suite 300, Metro City">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="checkout-payment-token">Tokenized Payment Method</label>
+            <select class="form-select" id="checkout-payment-token">
+              <option value="tok_visa_valid">Valid Visa Token (tok_visa_valid) — Approves</option>
+              <option value="tok_mastercard_valid">Valid Mastercard Token (tok_mc_valid) — Approves</option>
+              <option value="tok_card_declined">Declined Card Token (tok_card_declined) — Simulates Rejection</option>
+            </select>
+            <small style="color: var(--text-muted); font-size: 0.75rem; display: block; margin-top: 5px;">
+              *PCI-DSS Scope Reduction: QuickBite handles only one-time payment tokens. Raw PAN and CVVs are never handled.
+            </small>
+          </div>
+
+          <!-- Checkout Totals Breakdown -->
+          <div class="checkout-totals">
+            <div class="total-line">
+              <span>Item Subtotal:</span>
+              <strong id="cart-subtotal">$0.00</strong>
+            </div>
+            <div class="total-line">
+              <span>Estimated Sales Tax (10%):</span>
+              <strong id="cart-tax">$0.00</strong>
+            </div>
+            <div class="total-line">
+              <span>Flat Delivery Fee:</span>
+              <strong>$3.00</strong>
+            </div>
+            <div class="total-line total-grand">
+              <span>Total Payable Amount:</span>
+              <span id="cart-grand-total" style="color: var(--primary);">$0.00</span>
+            </div>
+          </div>
+
+          <!-- Authoritative Pricing Notice -->
+          <div class="pricing-guarantee-note">
+            🔒 <strong>Authoritative Server Pricing Guarantee:</strong> The server computes prices directly from canonical database records. Any client-submitted prices or tampered request bodies are rejected/overwritten by the server.
+          </div>
+
+          <button class="btn-primary btn-block" id="btn-submit-order" onclick="app.submitOrder()">
+            Place Secure Order Now
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: CUSTOMER ORDERS & LIVE TRACKING -->
+    <section id="tab-orders" class="tab-content">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Order History & Live Progress</h2>
+          <p class="section-subtitle">Real-time order lifecycle tracking and tamper-evident history</p>
+        </div>
+        <button class="btn-secondary" onclick="app.loadCustomerOrders()">Refresh Orders</button>
+      </div>
+
+      <!-- Live Order Stepper Card (If latest order exists) -->
+      <div id="live-tracking-panel" class="stepper-container" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <h3 style="font-size: 1.15rem; font-weight: 800;">
+              Live Tracking: Order #<span id="track-order-id">-</span>
+            </h3>
+            <span style="font-size: 0.85rem; color: var(--text-secondary);" id="track-restaurant-name">Restaurant</span>
+          </div>
+          <div>
+            <span class="badge" id="track-status-badge">PLACED</span>
+            <button class="btn-danger" id="track-cancel-btn" style="margin-left: 1rem;" onclick="app.cancelActiveOrder()">
+              Cancel Order
+            </button>
+          </div>
+        </div>
+
+        <div class="stepper">
+          <div class="step-node" id="step-node-placed">1<div class="step-label">Placed</div></div>
+          <div class="step-node" id="step-node-accepted">2<div class="step-label">Accepted</div></div>
+          <div class="step-node" id="step-node-preparing">3<div class="step-label">Preparing</div></div>
+          <div class="step-node" id="step-node-out_for_delivery">4<div class="step-label">Dispatched</div></div>
+          <div class="step-node" id="step-node-delivered">5<div class="step-label">Delivered</div></div>
+        </div>
+      </div>
+
+      <!-- Historical Orders Table -->
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Placed At</th>
+              <th>Restaurant</th>
+              <th>Items Summary</th>
+              <th>Total Amount</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="orders-table-body">
+            <!-- Rendered dynamically -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- TAB 4: KITCHEN DASHBOARD (STAFF ONLY) -->
+    <section id="tab-kitchen" class="tab-content">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Kitchen Order Queue</h2>
+          <p class="section-subtitle" id="kitchen-restaurant-name">Managing orders for assigned kitchen</p>
+        </div>
+        <button class="btn-secondary" onclick="app.loadKitchenOrders()">Refresh Queue</button>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Time</th>
+              <th>Customer</th>
+              <th>Delivery Address</th>
+              <th>Dishes & Quantities</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th>FSM Progression Actions</th>
+            </tr>
+          </thead>
+          <tbody id="kitchen-table-body">
+            <!-- Rendered dynamically -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- TAB 5: MENU MANAGEMENT (STAFF ONLY) -->
+    <section id="tab-menu-mgmt" class="tab-content">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Menu Management & Canonical Pricing</h2>
+          <p class="section-subtitle">Manage authoritative food items and prices for your restaurant</p>
+        </div>
+        <button class="btn-primary" style="width: auto;" onclick="app.openAddDishModal()">+ Add New Dish</button>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Item ID</th>
+              <th>Dish Name</th>
+              <th>Category</th>
+              <th>Canonical Price ($)</th>
+              <th>Availability</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="staff-menu-table-body">
+            <!-- Rendered dynamically -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- TAB 6: AUDIT LEDGER (ADMIN ONLY) -->
+    <section id="tab-audit" class="tab-content">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Tamper-Evident Security Audit Ledger</h2>
+          <p class="section-subtitle">Real-time immutable log of authentication, authorization, and financial events</p>
+        </div>
+        <button class="btn-secondary" onclick="app.loadAuditLogs()">Refresh Audit Trail</button>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Action Type</th>
+              <th>Actor ID</th>
+              <th>Entity</th>
+              <th>Result</th>
+              <th>Client IP</th>
+              <th>Security Context Details</th>
+            </tr>
+          </thead>
+          <tbody id="audit-table-body">
+            <!-- Rendered dynamically -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Security Posture Card / Dashboard Modal -->
+  <div class="modal-overlay" id="security-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">🛡️ QuickBite Security Posture & Architecture Dashboard</h3>
+        <button class="close-btn" onclick="app.closeSecurityModal()">&times;</button>
+      </div>
+      <div>
+        <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 1rem;">
+          Verified architectural security controls active in QuickBite v2.0.0 (End-Semester Laboratory Examination Release):
+        </p>
+        
+        <div class="sec-posture-grid">
+          <div class="sec-posture-card">
+            <div class="sec-posture-header">
+              <span>Authentication</span>
+              <span class="badge badge-delivered">ACTIVE</span>
+            </div>
+            <p class="sec-posture-desc">Salted Bcrypt (work factor 12) + HMAC-SHA256 signed JWT bearer tokens with 60-min sliding expiration.</p>
+          </div>
+
+          <div class="sec-posture-card">
+            <div class="sec-posture-header">
+              <span>Authorization (RBAC)</span>
+              <span class="badge badge-delivered">ACTIVE</span>
+            </div>
+            <p class="sec-posture-desc">Strict server-side role dependency enforcement for Customer, Restaurant Staff, and Administrator.</p>
+          </div>
+
+          <div class="sec-posture-card">
+            <div class="sec-posture-header">
+              <span>BOLA / IDOR Defense</span>
+              <span class="badge badge-delivered">ACTIVE</span>
+            </div>
+            <p class="sec-posture-desc">Order ownership verification on all endpoints. Customers cannot access or cancel peer orders.</p>
+          </div>
+
+          <div class="sec-posture-card">
+            <div class="sec-posture-header">
+              <span>Authoritative Pricing</span>
+              <span class="badge badge-delivered">ACTIVE</span>
+            </div>
+            <p class="sec-posture-desc">Single source of truth in database. Client-submitted prices are ignored and recalculated server-side.</p>
+          </div>
+
+          <div class="sec-posture-card">
+            <div class="sec-posture-header">
+              <span>Multi-Tenant Isolation</span>
+              <span class="badge badge-delivered">ACTIVE</span>
+            </div>
+            <p class="sec-posture-desc">Staff accounts are cryptographically and relationally bounded to their assigned restaurant ID.</p>
+          </div>
+
+          <div class="sec-posture-card">
+            <div class="sec-posture-header">
+              <span>Finite State Machine</span>
+              <span class="badge badge-delivered">ACTIVE</span>
+            </div>
+            <p class="sec-posture-desc">Strict order lifecycle invariant checking. Cancellation allowed only in PLACED state; illegal transitions rejected.</p>
+          </div>
+
+          <div class="sec-posture-card">
+            <div class="sec-posture-header">
+              <span>PCI-DSS Scope Reduction</span>
+              <span class="badge badge-delivered">ACTIVE</span>
+            </div>
+            <p class="sec-posture-desc">Zero storage of credit card PAN or CVV numbers. Payments processed via mock tokenized gateway adapter.</p>
+          </div>
+
+          <div class="sec-posture-card">
+            <div class="sec-posture-header">
+              <span>Container Security</span>
+              <span class="badge badge-delivered">ACTIVE</span>
+            </div>
+            <p class="sec-posture-desc">Docker non-root user (appuser:10001), minimal Python 3.11-slim base, and capabilities dropped (ALL).</p>
+          </div>
+
+          <div class="sec-posture-card">
+            <div class="sec-posture-header">
+              <span>Kubernetes Orchestration</span>
+              <span class="badge badge-delivered">ACTIVE</span>
+            </div>
+            <p class="sec-posture-desc">Dedicated namespace (quickbite), RuntimeDefault Seccomp profile, separate data volume, and health probes.</p>
+          </div>
+
+          <div class="sec-posture-card">
+            <div class="sec-posture-header">
+              <span>Audit Logging</span>
+              <span class="badge badge-delivered">ACTIVE</span>
+            </div>
+            <p class="sec-posture-desc">Immutable audit trail recording logins, auth failures, price validations, and status transitions.</p>
+          </div>
+        </div>
+
+        <div style="margin-top: 1.5rem; text-align: right;">
+          <button class="btn-primary" onclick="app.closeSecurityModal()">Close Dashboard</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Dish Modal (Staff) -->
+  <div class="modal-overlay" id="dish-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Add New Food Item to Menu</h3>
+        <button class="close-btn" onclick="app.closeDishModal()">&times;</button>
+      </div>
+      <form onsubmit="app.handleCreateDishSubmit(event)">
+        <div class="form-group">
+          <label class="form-label" for="dish-name">Dish Name</label>
+          <input type="text" class="form-input" id="dish-name" required placeholder="e.g. Quattro Formaggi Pizza">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="dish-desc">Description</label>
+          <input type="text" class="form-input" id="dish-desc" placeholder="Fresh gorgonzola, parmesan, fontina, mozzarella">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="dish-price">Canonical Price ($)</label>
+          <input type="number" step="0.01" min="0.01" class="form-input" id="dish-price" required placeholder="16.50">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="dish-category">Category</label>
+          <input type="text" class="form-input" id="dish-category" value="Specialties">
+        </div>
+        <button type="submit" class="btn-primary btn-block" style="margin-top: 1rem;">Publish Menu Item</button>
+      </form>
+    </div>
+  </div>
+
+  <footer>
+    QuickBite &copy; 2026 — Secure Software Engineering End-Semester Laboratory Examination Platform (v2.0.0 Release)
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

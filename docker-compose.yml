@@ -1,0 +1,32 @@
+version: "3.8"
+
+services:
+  quickbite:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: quickbite-app
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - ENVIRONMENT=production
+      - JWT_SECRET=quickbite_production_secret_key_change_me_to_32bytes_hex
+      - JWT_ALGORITHM=HS256
+      - ACCESS_TOKEN_EXPIRE_MINUTES=60
+      - DATABASE_URL=sqlite:////home/appuser/quickbite/data/quickbite.db
+    volumes:
+      - quickbite-data:/home/appuser/quickbite/data
+    security_opt:
+      - no-new-privileges:true
+    read_only: false
+    user: "10001:10001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  quickbite-data:
+    driver: local

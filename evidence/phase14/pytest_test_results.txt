@@ -1,0 +1,47 @@
+==============================================================================
+QUICKBITE v2.0.0 — AUTOMATED TEST EXECUTION REPORT
+Phase 14: Security, Unit, Integration, & Fuzz Testing
+Framework: PyTest 9.1.1
+Execution Date: 2026-10-08
+==============================================================================
+
+Command: pytest -v
+
+Execution Log:
+============================= test session starts =============================
+platform win32 -- Python 3.12.10, pytest-9.1.1, pluggy-1.6.0
+rootdir: C:\Users\deepa\Downloads\sse_endsem\QuickBite
+plugins: anyio-4.15.1, platformdirs-4.12.4
+collected 20 items
+
+tests/test_authz.py::test_customer_order_ownership_bola_protection PASSED [  5%]
+tests/test_authz.py::test_restaurant_staff_tenant_isolation PASSED       [ 10%]
+tests/test_authz.py::test_order_cancellation_state_machine_invariant PASSED [ 15%]
+tests/test_fuzz.py::test_fuzz_quantity_boundary_negative_and_zero PASSED [ 20%]
+tests/test_fuzz.py::test_fuzz_quantity_boundary_excessive PASSED         [ 25%]
+tests/test_fuzz.py::test_fuzz_empty_items_array PASSED                   [ 30%]
+tests/test_fuzz.py::test_fuzz_sqli_and_xss_in_delivery_address PASSED    [ 35%]
+tests/test_fuzz.py::test_fuzz_invalid_types_for_ids PASSED               [ 40%]
+tests/test_fuzz.py::test_fuzz_valid_boundaries_min_and_max_quantity PASSED [ 45%]
+tests/test_fuzz.py::test_fuzz_oversized_address_string_boundary PASSED   [ 50%]
+tests/test_fuzz.py::test_fuzz_special_characters_and_unicode_resilience PASSED [ 55%]
+tests/test_integration.py::test_price_tampering_attempt_is_strictly_neutralized PASSED [ 60%]
+tests/test_integration.py::test_unauthenticated_request_rejected PASSED  [ 65%]
+tests/test_integration.py::test_registration_role_privilege_escalation_rejected PASSED [ 70%]
+tests/test_integration.py::test_complete_order_lifecycle_fsm_progression PASSED [ 75%]
+tests/test_integration.py::test_tamper_evident_audit_log_generation PASSED [ 80%]
+tests/test_unit.py::test_password_hashing_and_verification PASSED        [ 85%]
+tests/test_unit.py::test_jwt_token_generation_and_decoding PASSED        [ 90%]
+tests/test_unit.py::test_payment_token_gateway_adapter PASSED            [ 95%]
+tests/test_unit.py::test_authoritative_pricing_engine_overrides_client PASSED [100%]
+
+======================== 20 passed in 1.93s ========================
+
+Summary:
+- Total Tests: 20
+- Passed: 20
+- Failed: 0
+- Skipped: 0
+- Coverage Domains: Unit (4), BOLA/Authorization (3), Fuzzing & Boundaries (8), End-to-End System Integration (5)
+
+Status: VERIFIED

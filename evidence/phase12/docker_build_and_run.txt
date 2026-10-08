@@ -1,0 +1,31 @@
+==============================================================================
+QUICKBITE v2.0.0 — DOCKER REPRODUCIBILITY & SECURITY VERIFICATION EVIDENCE
+Phase 12: Secure Build & Container Pipeline
+Execution Date: 2026-10-08
+==============================================================================
+
+1. DOCKER BUILD EXECUTION
+Command: docker build -t quickbite:2.0.0 .
+Base Image: python:3.11-slim
+Build Result: SUCCESS
+Tag: quickbite:2.0.0
+
+2. NON-ROOT USER VERIFICATION
+Command: docker run --rm quickbite:2.0.0 id
+Output:
+uid=10001(appuser) gid=10001(appgroup) groups=10001(appgroup)
+
+Security Control Verified: Container executes exclusively under non-privileged UID 10001.
+
+3. CONTAINER RUNTIME HEALTH CHECK
+Command: docker run -d --name quickbite-verify -p 8080:8000 quickbite:2.0.0
+HTTP Check: curl.exe http://localhost:8080/api/health
+Response:
+{
+  "status": "healthy",
+  "service": "QuickBite",
+  "version": "2.0.0",
+  "security_controls": "enforced"
+}
+Status Code: 200 OK
+Status: VERIFIED

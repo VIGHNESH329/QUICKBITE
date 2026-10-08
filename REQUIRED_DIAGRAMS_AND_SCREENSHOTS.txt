@@ -1,0 +1,192 @@
+================================================================================
+QUICKBITE — REQUIRED DIAGRAMS AND SCREENSHOTS CHECKLIST
+Project: Web Application Security Project — Online Food Ordering ("QuickBite")
+Target Document: WEB_APPLICATION_SECURITY_PROJECT_PHASE_1_TO_10.docx
+================================================================================
+
+This checklist details every Draw.io diagram and application screenshot placeholder
+embedded in the main project report. Use this guide to create and insert each asset.
+
+Total Assets: 21 (10 Draw.io Diagrams + 11 Application Screenshots)
+
+--------------------------------------------------------------------------------
+PART A: DRAW.IO DIAGRAMS TO CREATE (10 DIAGRAMS)
+--------------------------------------------------------------------------------
+
+[ ] 1. Figure 1: High-Level System Architecture and Security Boundaries of QuickBite
+    - Document Section: 6. SYSTEM ARCHITECTURE
+    - Placeholder Text: [INSERT DRAW.IO ARCHITECTURE DIAGRAM HERE]
+    - Recommended Size: Full Width / ~3.5 inches height
+    - Diagram Type: System Architecture Diagram
+    - What to Draw:
+      * Client Tier (Customer Web SPA & Staff Portal)
+      * Perimeter Tier (TLS termination & sliding-window rate limiter)
+      * API Routing Tier (FastAPI Routers)
+      * Security Policy Interceptor Tier (JWT authentication, RBAC, Pydantic validation)
+      * Business Services Tier (Authoritative Pricing Engine, Order FSM Service, Payment Adapter, Audit Service)
+      * Relational Storage Tier (SQLite/PostgreSQL database)
+      * Mark trust boundaries between Untrusted Internet, DMZ/API, and Protected Data Core.
+
+[ ] 2. Figure 2: Agile Scrum Workflow with Integrated Security Definition of Done (DoD)
+    - Document Section: 7. PHASE 1 — AGILE PROCESS & SECURITY INTEGRATION
+    - Placeholder Text: [INSERT DRAW.IO DIAGRAM — PHASE 1: AGILE SECURITY SPRINTS & REFACTORING WORKFLOW]
+    - Recommended Size: ~2.8 inches height
+    - Diagram Type: Process / Workflow Diagram
+    - What to Draw:
+      * Scrum lifecycle: Product Backlog -> Sprint Planning -> 2-Week Sprint Cadence -> Gated DoD -> Sprint Review & Retrospective
+      * Explicit security gating checkpoints in DoD: SAST scanning (bandit), BOLA ownership unit tests, and dependency audits before transitioning to DONE.
+
+[ ] 3. Figure 4: Complete UML Use Case Diagram for QuickBite Food Ordering Platform
+    - Document Section: 9. PHASE 3 — UML USE CASE & SCENARIO-BASED ANALYSIS MODELING
+    - Placeholder Text: [INSERT DRAW.IO DIAGRAM — COMPLETE SYSTEM USE CASE DIAGRAM]
+    - Recommended Size: ~3.2 inches height
+    - Diagram Type: UML Use Case Diagram
+    - What to Draw:
+      * Actors: Customer, Restaurant Staff, Platform Admin, Payment Gateway (External System)
+      * Core Use Cases: Register & Login (UC-01), Browse Restaurants & Menus (UC-02), Manage Cart (UC-03), Place Order (UC-04), Track Status (UC-05), Cancel Order (UC-06), Manage Menu (UC-07), Accept/Reject Orders (UC-08), Update Status (UC-09), Process Payment (UC-10), Audit Logging (UC-11), Governance (UC-12)
+      * «include» relationships: Place Order includes Process Payment and Audit Logging; Update Status includes Audit Logging.
+
+[ ] 4. Figure 5: BCE Sequence Diagram for Scenario-Based Analysis: "Place Order"
+    - Document Section: 9. PHASE 3 — UML USE CASE & SCENARIO-BASED ANALYSIS MODELING
+    - Placeholder Text: [INSERT DRAW.IO DIAGRAM — SCENARIO-BASED SEQUENCE DIAGRAM (PLACE ORDER)]
+    - Recommended Size: Full Width / ~3.5 inches height
+    - Diagram Type: UML Sequence Diagram (Boundary-Control-Entity)
+    - What to Draw:
+      * Lifelines: Actor (Customer) -> Boundary (CheckoutUI) -> Boundary (OrderApiController) -> Control (AuthMiddleware) -> Control (OrderCoordinator) -> Control (AuthoritativePricingEngine) -> Control (PaymentGatewayClient) -> Entity/DB (OrderRepository) -> Control (AuditService)
+      * Highlight: Authoritative server calculation where client-submitted prices are ignored and DB canonical prices are summed.
+
+[ ] 5. Figure 6: Complete 3NF Entity-Relationship Diagram for QuickBite Relational Database
+    - Document Section: 10. PHASE 4 — DATA MODELING (ER) & DATA FLOW DIAGRAMS (DFD)
+    - Placeholder Text: [INSERT DRAW.IO DIAGRAM — ENTITY-RELATIONSHIP (ER) MODEL (3NF)]
+    - Recommended Size: Full Width / ~3.5 inches height
+    - Diagram Type: Entity-Relationship Diagram (Crow's Foot notation)
+    - What to Draw:
+      * 9 Entities: USER, RESTAURANT, FOOD_ITEM, CART, CART_ITEM, ORDER, ORDER_ITEM, PAYMENT, AUDIT_LOG
+      * Primary Keys (PK) and Foreign Keys (FK)
+      * Cardinalities: USER (1:N) ORDER, USER (1:1) CART, RESTAURANT (1:N) FOOD_ITEM, ORDER (1:N) ORDER_ITEM, ORDER (1:1) PAYMENT
+      * Important attributes: snapshot_unit_price in ORDER_ITEM, masked_token in PAYMENT, password_hash in USER.
+
+[ ] 6. Figure 7: DFD Level 0 Context Diagram with External Entities and Data Flows
+    - Document Section: 10. PHASE 4 — DATA MODELING (ER) & DATA FLOW DIAGRAMS (DFD)
+    - Placeholder Text: [INSERT DRAW.IO DIAGRAM — DATA FLOW DIAGRAM (DFD LEVEL 0 - CONTEXT)]
+    - Recommended Size: ~2.5 inches height
+    - Diagram Type: Data Flow Diagram (Context Level)
+    - What to Draw:
+      * External Entities: Customer, Restaurant Staff, Payment Gateway
+      * Central Process: 0.0 QuickBite Online Food Ordering Application
+      * Inbound/Outbound Data Flows: Credentials, Menu Updates, Orders, Payments, and Tracking.
+
+[ ] 7. Figure 8: DFD Level 1 Decomposition Diagram with Processes, Data Stores, and Trust Boundaries
+    - Document Section: 10. PHASE 4 — DATA MODELING (ER) & DATA FLOW DIAGRAMS (DFD)
+    - Placeholder Text: [INSERT DRAW.IO DIAGRAM — DATA FLOW DIAGRAM (DFD LEVEL 1 - DECOMPOSITION WITH TRUST BOUNDARIES)]
+    - Recommended Size: Full Width / ~3.5 inches height
+    - Diagram Type: Data Flow Diagram (Level 1 Decomposition)
+    - What to Draw:
+      * Processes: 1.0 Auth & Session, 2.0 Menu Management, 3.0 Cart Management, 4.0 Authoritative Order Processing, 5.0 Payment Processing, 6.0 Status Management, 7.0 Security Audit Logging
+      * Data Stores: D1 User Store, D2 Menu Store, D3 Cart Store, D4 Order Store, D5 Payment Store, D6 Audit Log Store
+      * Demarcated Trust Boundaries: Trust Boundary 1 (Public Network), Trust Boundary 2 (Core Application Tier), Trust Boundary 3 (PCI Gateway Boundary).
+
+[ ] 8. Figure 9: Secure Layered Software Architecture and Component Interaction Model
+    - Document Section: 11. PHASE 5 — SECURE SOFTWARE ARCHITECTURE & DESIGN PATTERNS
+    - Placeholder Text: [INSERT DRAW.IO DIAGRAM — SECURE LAYERED SOFTWARE ARCHITECTURE]
+    - Recommended Size: ~3.2 inches height
+    - Diagram Type: Software Architecture Diagram
+    - What to Draw:
+      * Tier 1: Client Tier (SPA)
+      * Tier 2: Perimeter Tier (TLS / Rate Limiter)
+      * Tier 3: API Routing Tier (Routers)
+      * Tier 4: Security Policy Enforcement Tier (JWT / RBAC / Pydantic)
+      * Tier 5: Domain Services Tier (PricingEngine, OrderService, PaymentService, AuditService)
+      * Tier 6: Data Access & Persistence Tier (Repositories & SQLite/PostgreSQL)
+      * Arrows showing unidirectional top-down invocation.
+
+[ ] 9. Figure 16: STRIDE Threat Model and Sensitive Information Flow Diagram
+    - Document Section: 13. PHASE 7 — THREAT MODELING & VULNERABILITY ANALYSIS
+    - Placeholder Text: [INSERT DRAW.IO DIAGRAM — PHASE 7: STRIDE THREAT BOUNDARY & INFORMATION FLOW MODEL]
+    - Recommended Size: ~3.0 inches height
+    - Diagram Type: Threat Model Diagram
+    - What to Draw:
+      * Data flows for (1) Authentication Credentials, (2) Order & Payment Data, and (3) Staff Order Progression across trust boundaries.
+      * Threat icons/callouts (TH-01 to TH-07) marking where spoofing, tampering, information disclosure, and elevation of privilege threaten assets.
+
+[ ] 10. Figure 17: Hierarchical AND/OR Attack Tree for Order Modification and Price Tampering
+    - Document Section: 14. PHASE 8 — ATTACK TREE MODELING & ARCHITECTURAL REFINEMENTS
+    - Placeholder Text: [INSERT DRAW.IO DIAGRAM — PRIMARY ATTACK TREE: MODIFY ANOTHER CUSTOMER'S ORDER OR AMOUNT]
+    - Recommended Size: Full Width / ~3.5 inches height
+    - Diagram Type: Hierarchical Tree Diagram (Boolean AND/OR Nodes)
+    - What to Draw:
+      * Root Node: Modify Another Customer's Order OR Manipulate Payable Order Amount
+      * Branch 1.0 (OR): Tamper with Order Payable Amount (Client price manipulation, negative quantity injection)
+      * Branch 2.0 (OR): Mutate Another Customer's Order (IDOR cancellation, credential brute force, staff impersonation)
+      * Leaf nodes labeled with Preventive and Detective control tags.
+
+[ ] 11. Figure 18: Hierarchical AND/OR Attack Tree for Payment Credential Exfiltration
+    - Document Section: 14. PHASE 8 — ATTACK TREE MODELING & ARCHITECTURAL REFINEMENTS
+    - Placeholder Text: [INSERT DRAW.IO DIAGRAM — SECONDARY ATTACK TREE: ACCESS PAYMENT-SENSITIVE INFORMATION]
+    - Recommended Size: ~3.0 inches height
+    - Diagram Type: Hierarchical Tree Diagram (Boolean AND/OR Nodes)
+    - What to Draw:
+      * Root Node: Exfiltrate or Harvest Sensitive Payment Information
+      * Branch 1.0 (OR): Intercept Raw Credentials During Ingestion (Unencrypted HTTP, server sniffing)
+      * Branch 2.0 (OR): Harvest Stored Financial Data (SQL injection dump, plaintext logging, API over-fetching)
+      * Leaf nodes showing tokenization and log sanitization mitigations.
+
+--------------------------------------------------------------------------------
+PART B: APPLICATION SCREENSHOTS TO CAPTURE (10 SCREENSHOTS)
+--------------------------------------------------------------------------------
+
+[ ] 12. Figure 3: QuickBite Requirements Specification and Security Control Mapping Artifact
+    - Document Section: 8. PHASE 2 — SOFTWARE REQUIREMENTS SPECIFICATION (SRS)
+    - Placeholder Text: [INSERT SCREENSHOT — PHASE 2: REQUIREMENTS TRACEABILITY MATRIX / SPECIFICATION ARTIFACT]
+    - How to Capture: Screenshot of docs/02_srs.md open in VS Code / Markdown viewer or the requirements table.
+
+[ ] 13. Figure 10: QuickBite Customer Restaurant and Food Menu Browsing Interface
+    - Document Section: 12. PHASE 6 — USER INTERFACE (UI) & USABILITY ENGINEERING
+    - Placeholder Text: [INSERT SCREENSHOT — PHASE 6 UI: CUSTOMER RESTAURANT & MENU BROWSING SCREEN]
+    - How to Capture: Open http://127.0.0.1:8000 in browser as Alice, screenshot the restaurant cards and food dishes catalog with prices and "+ Add to Cart" buttons.
+
+[ ] 14. Figure 11: QuickBite Shopping Cart and Checkout Screen with Token Selector
+    - Document Section: 12. PHASE 6 — USER INTERFACE (UI) & USABILITY ENGINEERING
+    - Placeholder Text: [INSERT SCREENSHOT — PHASE 6 UI: CART & SECURE CHECKOUT WITH AUTHORITATIVE PRICING]
+    - How to Capture: Add dishes to cart, click "Cart", screenshot the cart summary box, delivery address, simulated payment token selector, and the authoritative pricing notice banner.
+
+[ ] 15. Figure 12: QuickBite Real-Time Order Status Tracking Screen with Visual Progress Stepper
+    - Document Section: 12. PHASE 6 — USER INTERFACE (UI) & USABILITY ENGINEERING
+    - Placeholder Text: [INSERT SCREENSHOT — PHASE 6 UI: LIVE ORDER STATUS TRACKING & CANCELLATION]
+    - How to Capture: Place an order, navigate to "My Orders", screenshot the Live Tracking panel showing the 5-step stepper (Placed -> Accepted -> Preparing -> Dispatched -> Delivered) and the Cancel Order button.
+
+[ ] 16. Figure 13: Restaurant Staff Kitchen Dashboard with Order Progression Actions
+    - Document Section: 12. PHASE 6 — USER INTERFACE (UI) & USABILITY ENGINEERING
+    - Placeholder Text: [INSERT SCREENSHOT — PHASE 6 UI: RESTAURANT STAFF KITCHEN ORDER MANAGEMENT DASHBOARD]
+    - How to Capture: In persona switcher, select "Staff: Marco (Bella Italia)", screenshot the Kitchen Dashboard queue showing orders with "Accept", "Cook", and "Dispatch" buttons.
+
+[ ] 17. Figure 14: Restaurant Staff Menu and Authoritative Price Management Interface
+    - Document Section: 12. PHASE 6 — USER INTERFACE (UI) & USABILITY ENGINEERING
+    - Placeholder Text: [INSERT SCREENSHOT — PHASE 6 UI: RESTAURANT STAFF MENU & PRICE MANAGEMENT]
+    - How to Capture: While logged in as Staff, navigate to "Menu Management", screenshot the table of dishes with inline price inputs and availability checkboxes.
+
+[ ] 18. Figure 15: Platform Administrator Tamper-Evident Security Audit Log Viewer
+    - Document Section: 12. PHASE 6 — USER INTERFACE (UI) & USABILITY ENGINEERING
+    - Placeholder Text: [INSERT SCREENSHOT — PHASE 6 UI: TAMPER-EVIDENT AUDIT LEDGER (ADMIN VIEW)]
+    - How to Capture: In persona switcher, select "Platform Admin", navigate to "Audit Ledger", screenshot the audit log table showing events (AUTH_LOGIN_SUCCESS, ORDER_CREATED, etc.) with IP and status badges.
+
+[ ] 19. Figure 19: Sprint Planning Task Breakdown and Story Point Velocity Allocation
+    - Document Section: 15. PHASE 9 — PRODUCT BACKLOG & SPRINT PLANNING
+    - Placeholder Text: [INSERT SCREENSHOT — PHASE 9: SPRINT BACKLOG PLANNING & TASK BREAKDOWN]
+    - How to Capture: Screenshot of docs/10_backlog.md or Sprint allocation table in Markdown viewer.
+
+[ ] 20. Figure 20: Visual Scrum Sprint Board Illustrating User Stories Flowing Through Work Stages
+    - Document Section: 16. PHASE 10 — SCRUM CEREMONIES & EXECUTION METRICS
+    - Placeholder Text: [INSERT SCREENSHOT — PHASE 10 SCRUM BOARD WORKFLOW (TO DO, IN PROGRESS, TESTING, DONE)]
+    - How to Capture: Screenshot of docs/11_scrum.md or a Kanban board view showing columns TO DO, IN PROGRESS, TESTING, DONE.
+
+[ ] 21. Figure 21: Automated Pytest Execution Results: 12 Passed, 8 Warnings Across All Test Suites
+    - Document Section: 18. TESTING AND VALIDATION
+    - Placeholder Text: [INSERT PYTEST TEST RESULT SCREENSHOT HERE]
+    - How to Capture: In terminal, execute:
+      pytest QuickBite/tests -v
+      Screenshot the terminal output displaying all 12 test functions passing and the green summary line "12 passed, 8 warnings in 3.08s".
+
+================================================================================
+END OF CHECKLIST
+================================================================================

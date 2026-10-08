@@ -1,0 +1,52 @@
+==============================================================================
+QUICKBITE v2.0.0 — STATIC APPLICATION SECURITY TESTING (SAST) EVIDENCE
+Phase 13: Secure Coding & Vulnerability Remediation
+Tool: Bandit 1.9.4
+Execution Date: 2026-10-08
+==============================================================================
+
+Command: bandit -r backend/app
+
+Run Output:
+[main]	INFO	profile include tests: None
+[main]	INFO	profile exclude tests: None
+[main]	INFO	cli include tests: None
+[main]	INFO	cli exclude tests: None
+[main]	INFO	running on Python 3.12.10
+Run started: 2026-10-08 07:18:11.841384+00:00
+
+Test results:
+	No issues identified.
+
+Code scanned:
+	Total lines of code: 1331
+	Total lines skipped (#nosec): 0
+	Total potential issues skipped due to specifically being disabled (e.g., #nosec BXXX): 2
+
+Run metrics:
+	Total issues (by severity):
+		Undefined: 0
+		Low: 0
+		Medium: 0
+		High: 0
+	Total issues (by confidence):
+		Undefined: 0
+		Low: 0
+		Medium: 0
+		High: 0
+Files skipped (0):
+
+Vulnerability Remediation Log:
+1. Finding: B105 (Possible hardcoded password 'bearer' in auth token response)
+   Severity: Low
+   Location: backend/app/api/auth.py:107
+   Fix: Applied explicit standard OAuth2 Bearer token specification with '# nosec: B105' annotation.
+   Retest Result: Clean (0 findings).
+
+2. Finding: B106 (Possible hardcoded empty password string for masked_token)
+   Severity: Low
+   Location: backend/app/services/payment.py:23
+   Fix: Applied intentional empty string marker with '# nosec: B106' annotation.
+   Retest Result: Clean (0 findings).
+
+Status: VERIFIED

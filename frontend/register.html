@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register — QuickBite Secure Portal</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="auth-page-body">
+
+  <div class="auth-container">
+    <div class="auth-card">
+      
+      <!-- Brand & Header -->
+      <div class="auth-header">
+        <div class="auth-brand">
+          <span class="auth-icon">🍕</span>
+          <span class="auth-brand-text">QuickBite</span>
+        </div>
+        <div class="auth-version-badge">v2.0.0 Secure SSE Release</div>
+        <h1 class="auth-title">Create Account</h1>
+        <p class="auth-subtitle">Register a secure customer profile for online ordering</p>
+      </div>
+
+      <!-- Security Trust Bar -->
+      <div class="auth-security-notice">
+        <div class="notice-icon">🛡️</div>
+        <div class="notice-text">
+          <strong>Security Policy:</strong> Public registration is restricted to the <code>customer</code> role. Passwords are salted and hashed via Bcrypt (cost factor 12).
+        </div>
+      </div>
+
+      <!-- Alert / Feedback Banner -->
+      <div id="auth-alert" class="alert-box" style="display: none;"></div>
+
+      <!-- Register Form -->
+      <form id="register-form" onsubmit="handleRegisterSubmit(event)" novalidate>
+        <div class="form-group">
+          <label class="form-label" for="name-input">Full Name</label>
+          <div class="input-wrapper">
+            <span class="input-icon">👤</span>
+            <input 
+              type="text" 
+              id="name-input" 
+              class="form-input with-icon" 
+              placeholder="e.g. Charlie Brown" 
+              required 
+              autocomplete="name"
+            >
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="email-input">Email Address</label>
+          <div class="input-wrapper">
+            <span class="input-icon">✉️</span>
+            <input 
+              type="email" 
+              id="email-input" 
+              class="form-input with-icon" 
+              placeholder="name@example.com" 
+              required 
+              autocomplete="email"
+            >
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="phone-input">Phone Number (Optional)</label>
+          <div class="input-wrapper">
+            <span class="input-icon">📞</span>
+            <input 
+              type="tel" 
+              id="phone-input" 
+              class="form-input with-icon" 
+              placeholder="555-0199" 
+              autocomplete="tel"
+            >
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="password-input">Password</label>
+          <div class="input-wrapper">
+            <span class="input-icon">🔒</span>
+            <input 
+              type="password" 
+              id="password-input" 
+              class="form-input with-icon" 
+              placeholder="Min 8 chars, 1 uppercase, 1 digit" 
+              required 
+              autocomplete="new-password"
+              oninput="checkPasswordStrength(this.value)"
+            >
+            <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('password-input', this)">👁️</button>
+          </div>
+          <!-- Password strength indicators -->
+          <div class="password-checklist">
+            <div id="pw-len" class="pw-check-item">✕ At least 8 characters</div>
+            <div id="pw-upper" class="pw-check-item">✕ At least 1 uppercase letter</div>
+            <div id="pw-num" class="pw-check-item">✕ At least 1 number</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="confirm-password-input">Confirm Password</label>
+          <div class="input-wrapper">
+            <span class="input-icon">🔒</span>
+            <input 
+              type="password" 
+              id="confirm-password-input" 
+              class="form-input with-icon" 
+              placeholder="Repeat password" 
+              required 
+              autocomplete="new-password"
+            >
+          </div>
+        </div>
+
+        <button type="submit" id="register-btn" class="btn-primary btn-block">
+          <span id="register-btn-text">Create Customer Account</span>
+          <span id="register-btn-spinner" class="spinner" style="display: none;"></span>
+        </button>
+      </form>
+
+      <!-- Footer Links -->
+      <div class="auth-footer">
+        <p>Already have an account? <a href="/login" class="auth-link">Sign In</a></p>
+        <div class="auth-meta">
+          <a href="/" class="auth-link-secondary">← Back to QuickBite Store</a>
+          <span class="divider">•</span>
+          <span class="security-tag">Bcrypt Salted Encryption</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    function togglePasswordVisibility(inputId, btn) {
+      const input = document.getElementById(inputId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        btn.textContent = '🙈';
+      } else {
+        input.type = 'password';
+        btn.textContent = '👁️';
+      }
+    }
+
+    function checkPasswordStrength(val) {
+      const lenOk = val.length >= 8;
+      const upperOk = /[A-Z]/.test(val);
+      const numOk = /[0-9]/.test(val);
+
+      updateCheckItem('pw-len', lenOk, 'At least 8 characters');
+      updateCheckItem('pw-upper', upperOk, 'At least 1 uppercase letter');
+      updateCheckItem('pw-num', numOk, 'At least 1 number');
+    }
+
+    function updateCheckItem(id, isOk, text) {
+      const el = document.getElementById(id);
+      if (isOk) {
+        el.className = 'pw-check-item pw-ok';
+        el.textContent = `✓ ${text}`;
+      } else {
+        el.className = 'pw-check-item';
+        el.textContent = `✕ ${text}`;
+      }
+    }
+
+    function showAlert(message, type) {
+      const box = document.getElementById('auth-alert');
+      if (type === 'hide') {
+        box.style.display = 'none';
+        return;
+      }
+      box.textContent = message;
+      box.className = `alert-box alert-${type}`;
+      box.style.display = 'block';
+    }
+
+    async function handleRegisterSubmit(event) {
+      event.preventDefault();
+      const fullName = document.getElementById('name-input').value.trim();
+      const email = document.getElementById('email-input').value.trim();
+      const phone = document.getElementById('phone-input').value.trim() || null;
+      const password = document.getElementById('password-input').value;
+      const confirmPassword = document.getElementById('confirm-password-input').value;
+
+      const btn = document.getElementById('register-btn');
+      const btnText = document.getElementById('register-btn-text');
+      const btnSpinner = document.getElementById('register-btn-spinner');
+
+      if (!fullName || !email || !password) {
+        showAlert('Please fill in all required fields.', 'error');
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        showAlert('Passwords do not match. Please verify.', 'error');
+        return;
+      }
+
+      if (password.length < 8 || !/[A-Z]/.test(password) || !/[0-9]/.test(password)) {
+        showAlert('Password must be at least 8 characters long, contain an uppercase letter and a number.', 'error');
+        return;
+      }
+
+      btn.disabled = true;
+      btnText.textContent = 'Creating Account...';
+      btnSpinner.style.display = 'inline-block';
+      showAlert('', 'hide');
+
+      try {
+        const payload = {
+          full_name: fullName,
+          email: email,
+          password: password,
+          role: 'customer',
+          phone: phone
+        };
+
+        const response = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          showAlert(data.detail || 'Registration failed.', 'error');
+          btn.disabled = false;
+          btnText.textContent = 'Create Customer Account';
+          btnSpinner.style.display = 'none';
+          return;
+        }
+
+        showAlert('Account created successfully! Redirecting to login...', 'success');
+        btnText.textContent = 'Redirecting to Login...';
+
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 1000);
+
+      } catch (err) {
+        console.error('Registration network error', err);
+        showAlert('Network error or server unreachable.', 'error');
+        btn.disabled = false;
+        btnText.textContent = 'Create Customer Account';
+        btnSpinner.style.display = 'none';
+      }
+    }
+  </script>
+</body>
+</html>

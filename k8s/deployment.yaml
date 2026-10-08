@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quickbite-deployment
+  namespace: quickbite
+  labels:
+    app: quickbite
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: quickbite
+  template:
+    metadata:
+      labels:
+        app: quickbite
+    spec:
+      # Pod-level security context
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+
+      containers:
+        - name: quickbite-app
+          image: quickbite:2.0.0
+          imagePullPolicy: IfNotPresent
+          
+          # Container-level hardening
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop:
+                - ALL
+
+          ports:
+            - containerPort: 8000
+              name: http
+
+          # Resource boundaries to prevent DoS via CPU/memory starvation
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+
+          # Health check monitoring probes
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            timeoutSeconds: 5
+
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+
+          # Configuration and secret injection
+          envFrom:
+            - configMapRef:
+                name: quickbite-config
+            - secretRef:
+                name: quickbite-secret
+
+
+          volumeMounts:
+            - name: data-volume
+              mountPath: /home/appuser/quickbite/data
+
+      volumes:
+        - name: data-volume
+          emptyDir: {}
+

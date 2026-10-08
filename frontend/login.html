@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login — QuickBite Secure Portal</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="auth-page-body">
+
+  <div class="auth-container">
+    <div class="auth-card">
+      
+      <!-- Brand & Header -->
+      <div class="auth-header">
+        <div class="auth-brand">
+          <span class="auth-icon">🍕</span>
+          <span class="auth-brand-text">QuickBite</span>
+        </div>
+        <div class="auth-version-badge">v2.0.0 Secure SSE Release</div>
+        <h1 class="auth-title">Welcome Back</h1>
+        <p class="auth-subtitle">Sign in to your account with role-based access control</p>
+      </div>
+
+      <!-- Security Trust Bar -->
+      <div class="auth-security-notice">
+        <div class="notice-icon">🛡️</div>
+        <div class="notice-text">
+          <strong>Security Enforced:</strong> Salted Bcrypt (Work Factor 12), HMAC-SHA256 JWT Session, Rate-Limited Authentication.
+        </div>
+      </div>
+
+      <!-- Quick Persona Selection (For Evaluation Convenience) -->
+      <div class="persona-section">
+        <div class="persona-label">⚡ Quick Persona Demo Selection:</div>
+        <div class="persona-chips">
+          <button type="button" class="persona-chip active" onclick="selectPersona('alice')">Alice (Customer)</button>
+          <button type="button" class="persona-chip" onclick="selectPersona('bob')">Bob (Customer)</button>
+          <button type="button" class="persona-chip" onclick="selectPersona('staff1')">Staff: Marco (Italian)</button>
+          <button type="button" class="persona-chip" onclick="selectPersona('staff2')">Staff: Rajesh (Indian)</button>
+          <button type="button" class="persona-chip" onclick="selectPersona('admin')">Platform Admin</button>
+        </div>
+      </div>
+
+      <!-- Alert / Feedback Banner -->
+      <div id="auth-alert" class="alert-box" style="display: none;"></div>
+
+      <!-- Login Form -->
+      <form id="login-form" onsubmit="handleLoginSubmit(event)" novalidate>
+        <div class="form-group">
+          <label class="form-label" for="email-input">Email Address</label>
+          <div class="input-wrapper">
+            <span class="input-icon">✉️</span>
+            <input 
+              type="email" 
+              id="email-input" 
+              class="form-input with-icon" 
+              placeholder="name@example.com" 
+              required 
+              autocomplete="email"
+              value="alice@customer.com"
+            >
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="password-input">Password</label>
+          <div class="input-wrapper">
+            <span class="input-icon">🔒</span>
+            <input 
+              type="password" 
+              id="password-input" 
+              class="form-input with-icon" 
+              placeholder="••••••••" 
+              required 
+              autocomplete="current-password"
+              value="Customer@123"
+            >
+            <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('password-input', this)">👁️</button>
+          </div>
+        </div>
+
+        <div class="form-row-between">
+          <label class="checkbox-label">
+            <input type="checkbox" id="remember-me" checked>
+            <span>Remember session</span>
+          </label>
+          <span class="badge-role-hint" id="role-hint">Logging in as: <strong>Customer</strong></span>
+        </div>
+
+        <button type="submit" id="login-btn" class="btn-primary btn-block">
+          <span id="login-btn-text">Sign In to QuickBite</span>
+          <span id="login-btn-spinner" class="spinner" style="display: none;"></span>
+        </button>
+      </form>
+
+      <!-- Footer Links -->
+      <div class="auth-footer">
+        <p>New to QuickBite? <a href="/register" class="auth-link">Create a customer account</a></p>
+        <div class="auth-meta">
+          <a href="/" class="auth-link-secondary">← Back to QuickBite Store</a>
+          <span class="divider">•</span>
+          <span class="security-tag">Zero Plaintext Storage</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const PERSONAS = {
+      alice: { email: 'alice@customer.com', password: 'Customer@123', label: 'Customer', role: 'customer' },
+      bob: { email: 'bob@customer.com', password: 'Customer@123', label: 'Customer', role: 'customer' },
+      staff1: { email: 'staff1@quickbite.com', password: 'Staff@123', label: 'Restaurant Staff (Bella Italia)', role: 'restaurant_staff' },
+      staff2: { email: 'staff2@quickbite.com', password: 'Staff@123', label: 'Restaurant Staff (Spice Craft)', role: 'restaurant_staff' },
+      admin: { email: 'admin@quickbite.com', password: 'Admin@123', label: 'Platform Administrator', role: 'admin' }
+    };
+
+    function selectPersona(key) {
+      document.querySelectorAll('.persona-chip').forEach(c => c.classList.remove('active'));
+      event.target.classList.add('active');
+      const p = PERSONAS[key];
+      if (p) {
+        document.getElementById('email-input').value = p.email;
+        document.getElementById('password-input').value = p.password;
+        document.getElementById('role-hint').innerHTML = `Logging in as: <strong>${p.label}</strong>`;
+        showAlert('', 'hide');
+      }
+    }
+
+    function togglePasswordVisibility(inputId, btn) {
+      const input = document.getElementById(inputId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        btn.textContent = '🙈';
+      } else {
+        input.type = 'password';
+        btn.textContent = '👁️';
+      }
+    }
+
+    function showAlert(message, type) {
+      const box = document.getElementById('auth-alert');
+      if (type === 'hide') {
+        box.style.display = 'none';
+        return;
+      }
+      box.textContent = message;
+      box.className = `alert-box alert-${type}`;
+      box.style.display = 'block';
+    }
+
+    async function handleLoginSubmit(event) {
+      event.preventDefault();
+      const email = document.getElementById('email-input').value.trim();
+      const password = document.getElementById('password-input').value;
+      const btn = document.getElementById('login-btn');
+      const btnText = document.getElementById('login-btn-text');
+      const btnSpinner = document.getElementById('login-btn-spinner');
+
+      if (!email || !password) {
+        showAlert('Please provide both email and password.', 'error');
+        return;
+      }
+
+      btn.disabled = true;
+      btnText.textContent = 'Verifying Credentials...';
+      btnSpinner.style.display = 'inline-block';
+      showAlert('', 'hide');
+
+      try {
+        const response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          showAlert(data.detail || 'Authentication failed. Please check your credentials.', 'error');
+          btn.disabled = false;
+          btnText.textContent = 'Sign In to QuickBite';
+          btnSpinner.style.display = 'none';
+          return;
+        }
+
+        // Store JWT token and user profile securely in localStorage
+        localStorage.setItem('quickbite_token', data.access_token);
+        localStorage.setItem('quickbite_user', JSON.stringify(data.user));
+
+        showAlert(`Authentication successful! Welcome, ${data.user.full_name}. Redirecting...`, 'success');
+        btnText.textContent = 'Redirecting...';
+
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 600);
+
+      } catch (err) {
+        console.error('Login network error', err);
+        showAlert('Network error or server unreachable. Please verify backend is running.', 'error');
+        btn.disabled = false;
+        btnText.textContent = 'Sign In to QuickBite';
+        btnSpinner.style.display = 'none';
+      }
+    }
+
+    // Check if already authenticated
+    window.addEventListener('DOMContentLoaded', () => {
+      const token = localStorage.getItem('quickbite_token');
+      if (token) {
+        // Option to continue with existing session
+        fetch('/api/auth/me', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        }).then(r => {
+          if (r.ok) {
+            showAlert('Active session detected. Redirecting to application...', 'success');
+            setTimeout(() => { window.location.href = '/'; }, 500);
+          }
+        }).catch(() => {});
+      }
+    });
+  </script>
+</body>
+</html>
